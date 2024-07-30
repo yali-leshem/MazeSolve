@@ -1,15 +1,9 @@
 import numpy as np 
 import random
-import matplotlib.pyplot as plt # Graphical library
-#from sklearn.metrics import mean_squared_error # Mean-squared error function
+import matplotlib.pyplot as plt # Graphical library for drawing the maze
 
-# WARNING: fill in these two functions that will be used by the auto-marking script
-
-def get_CID():
-  return "01911284" # Return your CID (add 0 at the beginning to ensure it is 8 digits long)
-
-def get_login():
-  return "kh123" # Return your short imperial login
+def randomNum():
+  return "01911284" 
 
 class GraphicsMaze(object):
 
@@ -19,10 +13,9 @@ class GraphicsMaze(object):
     self.locations = locations
     self.absorbing = absorbing
 
-    # Walls
     self.walls = np.zeros(self.shape)
     for ob in obstacle_locs:
-      self.walls[ob] = 20
+      self.walls[ob] = 20 # init the walls in the maze environmenet
 
     # Rewards
     self.rewarders = np.ones(self.shape) * default_reward
@@ -33,20 +26,14 @@ class GraphicsMaze(object):
     self.paint_maps()
 
   def paint_maps(self):
-    """
-    Print the Maze topology (obstacles, absorbing states and rewards)
-    input: /
-    output: /
+    """ Print the Maze topology (obstacles, absorbing states and rewards)
     """
     plt.figure(figsize=(15,10))
     plt.imshow(self.walls + self.rewarders)
     plt.show()
 
   def paint_state(self, state):
-    """
-    Print one old_old_state on the Maze topology (obstacles, absorbing states and rewards)
-    input: /
-    output: /
+    """ Print one old_state on the Maze topology (obstacles, absorbing states and rewards)
     """
     states = np.zeros(self.shape)
     states[state] = 30
@@ -55,10 +42,8 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_deterministic_policy(self, Policy):
-    """
-    Draw a deterministic policy
-    input: Policy {np.array} -- policy to draw (should be an array of values between 0 and 3 (actions))
-    output: /
+    """ Draw a deterministic final policy for representation
+    input: Policy of type np.array - policy to draw (should be an array of values between 0 and 3 (for all possible actions))
     """
     plt.figure(figsize=(15,10))
     plt.imshow(self.walls + self.rewarders) # Create the graph of the Maze
@@ -72,34 +57,16 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_policy(self, Policy):
-    """
-    Draw a policy (draw an arrow in the most probable direction)
-    input: Policy {np.array} -- policy to draw as probability
-    output: /
+    """ Draw a policy (draw an arrow in the most probable direction)
+    input: Policy type of np.array - policy to draw as probability
     """
     deterministic_policy = np.array([np.argmax(Policy[row,:]) for row in range(Policy.shape[0])])
     self.draw_deterministic_policy(deterministic_policy)
 
-  def draw_value(self, Value):
-    """
-    Draw a policy value
-    input: Value {np.array} -- policy values to draw
-    output: /
-    """
-    plt.figure(figsize=(15,10))
-    plt.imshow(self.walls + self.rewarders) # Create the graph of the Maze
-    for state, value in enumerate(Value):
-      if(self.absorbing[0, state]): # If it is an absorbing state, don't plot any value
-        continue
-      location = self.locations[state] # Compute the value location on graph
-      plt.text(location[1], location[0], round(value,2), ha='center', va='center') # Place it on graph
-    plt.show()
-
   def draw_deterministic_policy_grid(self, Policies, title, n_columns, n_lines):
     """
     Draw a grid representing multiple deterministic policies
-    input: Policies {np.array of np.array} -- array of policies to draw (each should be an array of values between 0 and 3 (actions))
-    output: /
+    input: Policies (a np.array *nested*) is an array of policies to draw (each should be an array of values between 0 and 3 (actions))
     """
     plt.figure(figsize=(20,8))
     for subplot in range (len(Policies)): # Go through all policies
@@ -116,65 +83,31 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_policy_grid(self, Policies, title, n_columns, n_lines):
-    """
-    Draw a grid representing multiple policies (draw an arrow in the most probable direction)
-    input: Policy {np.array} -- array of policies to draw as probability
-    output: /
+    """ Draw a grid representing multiple policies (draw an arrow in the most probable direction)
+    input: Policy (type np.array) is an array of policies to draw as probability
     """
     deterministic_policies = np.array([[np.argmax(Policy[row,:]) for row in range(Policy.shape[0])] for Policy in Policies])
     self.draw_deterministic_policy_grid(deterministic_policies, title, n_columns, n_lines)
 
-  def draw_value_grid(self, Values, title, n_columns, n_lines):
-    """
-    Draw a grid representing multiple policy values
-    input: Values {np.array of np.array} -- array of policy values to draw
-    output: /
-    """
-    plt.figure(figsize=(20,8))
-    for subplot in range (len(Values)): # Go through all values
-      ax = plt.subplot(n_columns, n_lines, subplot+1) # Create a subplot for each value
-      ax.imshow(self.walls+self.rewarders) # Create the graph of the Maze
-      for state, value in enumerate(Values[subplot]):
-        if(self.absorbing[0,state]): # If it is an absorbing state, don't plot any value
-          continue
-        location = self.locations[state] # Compute the value location on graph
-        plt.text(location[1], location[0], round(value,1), ha='center', va='center') # Place it on graph
-      ax.title.set_text(title[subplot]) # Set the title for the graoh given as argument
-    plt.show()
-
-## Maze class
 # This class define the Maze environment
 
 class Maze(object):
 
-  # [Action required]
+  # init the maze and it's features
   def __init__(self):
-    """
-    Maze initialisation.
-    input: /
-    output: /
-    """
-    
-    # [Action required] [DONE]
-    # Properties set from the CID
-    self._prob_success = 0.8 + 0.02 * (9 - int(get_CID()[-2])) # float
-    self._gamma = 0.8 + 0.02 * int(get_CID()[-2]) # float
-    self._goal = 0 # integer (0 for R0, 1 for R1, 2 for R2, 3 for R3)
+    # Properties set from the random number
+    self._prob_success = 0.8 + 0.02 * (9 - int(randomNum()[-2])) # float
+    self._gamma = 0.8 + 0.02 * int(randomNum()[-2]) # float
+    self._goal = 0 # integer (0 for R0, 1 for R1, 2 for R2, 3 for R3 - each reward)
 
     # Build the maze
     self._build_maze()
-                              
-
-  # Functions used to build the Maze environment 
-  # You DO NOT NEED to modify them
+ 
   def _build_maze(self):
-    """
-    Maze initialisation.
-    input: /
-    output: /
-    """
+    # init maze
+   
 
-    # Properties of the maze
+    # Properties of the maze defined for the initialization
     self._shape = (13, 10)
     self._obstacle_locs = [
                           (1,0), (1,1), (1,2), (1,3), (1,4), (1,7), (1,8), (1,9), \
@@ -189,13 +122,13 @@ class Maze(object):
                          ] # Location of obstacles
     self._absorbing_locs = [(2,0), (2,9), (10,1), (12,9)] # Location of absorbing states
     self._absorbing_rewards = [ (500 if (i == self._goal) else -50) for i in range (4) ]
-    self._starting_locs = [(0,0), (0,1), (0,2), (0,3), (0,4), (0,5), (0,6), (0,7), (0,8), (0,9)] #Reward of absorbing states
+    self._starting_locs = [(0,0), (0,1), (0,2), (0,3), (0,4), (0,5), (0,6), (0,7), (0,8), (0,9)] # Reward of absorbing states
     self._default_reward = -1 # Reward for each action performs in the environment
     self._max_t = 500 # Max number of steps in the environment
 
     # Actions
     self._action_size = 4
-    self._direction_names = ['N','E','S','W'] # Direction 0 is 'N', 1 is 'E' and so on
+    self._direction_names = ['N','E','S','W'] # Direction 0 is 'N', 1 is 'E', 2 is 'S' and 3 is 'W'
         
     # States
     self._locations = []
@@ -250,10 +183,10 @@ class Maze(object):
     # Transition matrix
     self._T = np.zeros((self._state_size, self._state_size, self._action_size)) # Empty matrix of domension S*S*A
     for action in range(self._action_size):
-      for outcome in range(4): # For each direction (N, E, S, W)
+      for outcome in range(4): # The agent could go each direction
         # The agent has prob_success probability to go in the correct direction
         if action == outcome:
-          prob = 1 - 3.0 * ((1.0 - self._prob_success) / 3.0) # (theoritically equal to self.prob_success but avoid rounding error and garanty a sum of 1)
+          prob = 1 - 3.0 * ((1.0 - self._prob_success) / 3.0) # theoriticaly equal to self.prob_success
         # Equal probability to go into one of the other directions
         else:
           prob = (1.0 - self._prob_success) / 3.0
@@ -336,11 +269,10 @@ class Maze(object):
   def get_gamma(self):
     return self._gamma
 
-  # Functions used to perform episodes in the Maze environment
+  # In order to perform episodes in the Maze environment
   def reset(self):
     """
     Reset the environment state to one of the possible starting states
-    input: /
     output: 
       - t {int} -- current timestep
       - state {int} -- current state of the envionment
@@ -466,13 +398,6 @@ class MC_agent(object):
     deterministic_policy = np.zeros((env.get_state_size(), env.get_action_size()))
     total_rewards = []
     
-
-    #### 
-    # Add your code here
-    # WARNING: this agent only has access to env.reset() and env.step()
-    # You should not use env.get_T(), env.get_R() or env.get_absorbing() to compute any value
-    ####
-    
     num_of_episodes = 4000
     
     # Loop for specified number of episodes
@@ -490,8 +415,8 @@ class MC_agent(object):
       
       while done is False: # Until episode end..
         possible_actions = [0, 1, 2, 3]
-        greedy_action = np.argmax(Q[old_state]) # choose the greedy action based on maximum Q value
-        if random.uniform(0,1) < (1 - epsilon + epsilon / env.get_action_size()):  # probability of selecting greedy actio
+        greedy_action = np.argmax(Q[old_state]) # choose the greedy action based on maximum Q(s,a) value
+        if random.uniform(0,1) < (1 - epsilon + epsilon / env.get_action_size()):  # prob of selecting greedy action
           action = greedy_action
         else:  # probability of selecting a non-greedy action
           possible_actions.remove(greedy_action)
@@ -606,40 +531,25 @@ class TD_agent(object):
     
     return deterministic_policy, values, total_rewards
 
-## Example main
-# Example main (can be edited)
 if __name__ == '__main__':
-  ### Question 0: Defining the environment
 
   print("Creating the Maze:\n")
-  maze = Maze()
-
-
-  ### Question 1: Dynamic programming
+  maze = Maze() # show the maze after being built
 
   dp_agent = DP_agent()
-  dp_policy, dp_value = dp_agent.solve(maze)
+  dp_policy, dp_value = dp_agent.solve(maze) # dynamic programming solution
 
   print("Results of the DP agent:\n")
   maze.get_graphics().draw_policy(dp_policy)
-  maze.get_graphics().draw_value(dp_value)
 
-
-  ### Question 2: Monte-Carlo learning
-
-  mc_agent = MC_agent()
-  mc_policy, mc_values, total_rewards = mc_agent.solve(maze)
+  mc_agent = MC_agent() 
+  mc_policy, mc_values, total_rewards = mc_agent.solve(maze) # monte-carlo solution
 
   print("Results of the MC agent:\n")
   maze.get_graphics().draw_policy(mc_policy)
-  maze.get_graphics().draw_value(mc_values[-1])
 
-
-  ### Question 3: Temporal-Difference learning
-
-  td_agent = TD_agent()
+  td_agent = TD_agent() # Temporal Difference learning solution
   td_policy, td_values, total_rewards = td_agent.solve(maze)
 
   print("Results of the TD agent:\n")
   maze.get_graphics().draw_policy(td_policy)
-  maze.get_graphics().draw_value(td_values[-1])
