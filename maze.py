@@ -26,8 +26,6 @@ class GraphicsMaze(object):
     self.paint_maps()
 
   def paint_maps(self):
-    """ Print the Maze topology (obstacles, absorbing states and rewards)
-    """
     plt.figure(figsize=(15,10))
     plt.imshow(self.walls + self.rewarders)
     plt.show()
@@ -42,9 +40,6 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_deterministic_policy(self, Policy):
-    """ Draw a deterministic final policy for representation
-    input: Policy of type np.array - policy to draw (should be an array of values between 0 and 3 (for all possible actions))
-    """
     plt.figure(figsize=(15,10))
     plt.imshow(self.walls + self.rewarders) # Create the graph of the Maze
     for state, action in enumerate(Policy):
@@ -57,17 +52,10 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_policy(self, Policy):
-    """ Draw a policy (draw an arrow in the most probable direction)
-    input: Policy type of np.array - policy to draw as probability
-    """
     deterministic_policy = np.array([np.argmax(Policy[row,:]) for row in range(Policy.shape[0])])
     self.draw_deterministic_policy(deterministic_policy)
 
   def draw_deterministic_policy_grid(self, Policies, title, n_columns, n_lines):
-    """
-    Draw a grid representing multiple deterministic policies
-    input: Policies (a np.array *nested*) is an array of policies to draw (each should be an array of values between 0 and 3 (actions))
-    """
     plt.figure(figsize=(20,8))
     for subplot in range (len(Policies)): # Go through all policies
       ax = plt.subplot(n_columns, n_lines, subplot+1) # Create a subplot for each policy
@@ -83,9 +71,6 @@ class GraphicsMaze(object):
     plt.show()
 
   def draw_policy_grid(self, Policies, title, n_columns, n_lines):
-    """ Draw a grid representing multiple policies (draw an arrow in the most probable direction)
-    input: Policy (type np.array) is an array of policies to draw as probability
-    """
     deterministic_policies = np.array([[np.argmax(Policy[row,:]) for row in range(Policy.shape[0])] for Policy in Policies])
     self.draw_deterministic_policy_grid(deterministic_policies, title, n_columns, n_lines)
 
@@ -256,7 +241,6 @@ class Maze(object):
     return self._absorbing
 
   # Getter functions used for DP, MC and TD agents
-  # You DO NOT NEED to modify them
   def get_graphics(self):
     return self._graphics
 
@@ -271,14 +255,6 @@ class Maze(object):
 
   # In order to perform episodes in the Maze environment
   def reset(self):
-    """
-    Reset the environment state to one of the possible starting states
-    output: 
-      - t {int} -- current timestep
-      - state {int} -- current state of the envionment
-      - reward {int} -- current reward
-      -  {bool} -- True if reach a terminal state / 0 otherwise
-    """
     self._t = 0
     self._state = self._get_state_from_loc(self._starting_locs[random.randrange(len(self._starting_locs))])
     self._reward = 0
@@ -286,16 +262,6 @@ class Maze(object):
     return self._t, self._state, self._reward, self._done
 
   def step(self, action):
-    """
-    Perform an action in the environment
-    input: action {int} -- action to perform
-    output: 
-      - t {int} -- current timestep
-      - state {int} -- current state of the envionment
-      - reward {int} -- current reward
-      -  {bool} -- True if reach a terminal state / 0 otherwise
-    """
-
     # If environment already finished, print an error
     if self._done or self._absorbing[0, self._state]:
       print("Please reset the environment")
@@ -343,11 +309,6 @@ class DP_agent(object):
     policy = np.zeros((env.get_state_size(), env.get_action_size())) 
     V = np.zeros(env.get_state_size())
     V_temp = V.copy() # V_temp holds state-values for the current iteration (letting each state re-calcualate their state-value using the previous iterations state values)
-
-    #### 
-    # Add your code here
-    # WARNING: for this agent only, you are allowed to access env.get_T(), env.get_R() and env.get_absorbing()
-    ####
     
     delta = float('inf') # Make large so that while loop below can start
     
@@ -380,18 +341,7 @@ class DP_agent(object):
 # This class define the Monte-Carlo agent
 
 class MC_agent(object):
-  
-  # [Action required]
-  # WARNING: make sure this function can be called by the auto-marking script
   def solve(self, env, e='decay'):
-    """
-    Solve a given Maze environment using Monte Carlo learning
-    input: env {Maze object} -- Maze to solve
-    output: 
-      - policy {np.array} -- Optimal policy found to solve the given Maze environment 
-      - values {list of np.array} -- List of successive value functions for each episode 
-      - total_rewards {list of float} -- Corresponding list of successive total non-discounted sum of reward for each episode 
-    """
 
     # Initialisation (can be edited)
     Q = np.random.rand(env.get_state_size(), env.get_action_size())
@@ -451,31 +401,13 @@ class MC_agent(object):
 # This class define the Temporal-Difference agent
 
 class TD_agent(object):
-
-  # [Action required]
-  # WARNING: make sure this function can be called by the auto-marking script
   def solve(self, env, e='decay', a=0.5):
-    """
-    Solve a given Maze environment using Temporal Difference learning
-    input: env {Maze object} -- Maze to solve
-    output: 
-      - policy {np.array} -- Optimal policy found to solve the given Maze environment 
-      - values {list of np.array} -- List of successive value functions for each episode 
-      - total_rewards {list of float} -- Corresponding list of successive total non-discounted sum of reward for each episode 
-    """
 
     # Initialisation (can be edited)
     Q = np.random.rand(env.get_state_size(), env.get_action_size())
     V = np.zeros(env.get_state_size())
     deterministic_policy = np.zeros((env.get_state_size(), env.get_action_size()))  # create new matrix filled with zeros
     total_rewards = []
-
-    #### 
-    # Add your code here
-    # WARNING: this agent only has access to env.reset() and env.step()
-    # You should not use env.get_T(), env.get_R() or env.get_absorbing() to compute any value
-    ####
-    
     # Q-learning algorithm
     num_of_episodes = 500  # Number of episodes
 
